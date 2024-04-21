@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"ai-radiologist/internal/views"
+	"github.com/radiologist-ai/web-app/internal/views"
 	"net/http"
 )
 

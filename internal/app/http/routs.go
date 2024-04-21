@@ -1,8 +1,8 @@
 package http
 
 import (
-	"ai-radiologist/internal/app/http/handlers"
 	"errors"
+	"github.com/radiologist-ai/web-app/internal/app/http/handlers"
 	"net/http"
 )
 

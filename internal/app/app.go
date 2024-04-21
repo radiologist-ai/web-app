@@ -1,16 +1,16 @@
 package app
 
 import (
-	http2 "ai-radiologist/internal/app/http"
-	"ai-radiologist/internal/app/http/handlers"
-	"ai-radiologist/internal/app/users/usersrepo"
-	"ai-radiologist/internal/app/users/usersservice"
-	"ai-radiologist/internal/config"
-	"ai-radiologist/pkg/ptr"
 	"context"
 	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	http2 "github.com/radiologist-ai/web-app/internal/app/http"
+	"github.com/radiologist-ai/web-app/internal/app/http/handlers"
+	"github.com/radiologist-ai/web-app/internal/app/users/usersrepo"
+	"github.com/radiologist-ai/web-app/internal/app/users/usersservice"
+	"github.com/radiologist-ai/web-app/internal/config"
+	"github.com/radiologist-ai/web-app/pkg/ptr"
 	"github.com/rs/zerolog"
 	"net/http"
 	"os"

@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"ai-radiologist/internal/domain"
 	"errors"
+	"github.com/radiologist-ai/web-app/internal/domain"
 	"github.com/rs/zerolog"
 )
 

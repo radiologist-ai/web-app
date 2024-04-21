@@ -1,9 +1,9 @@
 package usersservice
 
 import (
-	"ai-radiologist/internal/domain"
 	"context"
 	"errors"
+	"github.com/radiologist-ai/web-app/internal/domain"
 	"github.com/rs/zerolog"
 )
 

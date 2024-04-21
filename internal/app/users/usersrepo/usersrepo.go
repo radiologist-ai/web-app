@@ -1,10 +1,10 @@
 package usersrepo
 
 import (
-	"ai-radiologist/internal/domain"
 	"context"
 	"errors"
 	"github.com/jmoiron/sqlx"
+	"github.com/radiologist-ai/web-app/internal/domain"
 	"github.com/rs/zerolog"
 )
 

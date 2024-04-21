@@ -1,9 +1,9 @@
 package main
 
 import (
-	"ai-radiologist/internal/app"
 	"context"
 	"fmt"
+	"github.com/radiologist-ai/web-app/internal/app"
 	"log"
 	"os"
 	"os/signal"
