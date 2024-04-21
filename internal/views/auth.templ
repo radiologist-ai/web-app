@@ -1,0 +1,33 @@
+package views
+
+templ RegistrationForm() {
+    <form class="row g-3 needs-validation" hx-post="/register">
+      <div class="col-md-6"  hx-target="email-input" hx-swap="outerHTML">
+        <label for="inputEmail" class="form-label">Email</label>
+        <input type="email" class="form-control" id="inputEmail" hx-post="/register/email"/>
+      </div>
+      <div class="col-md-6" hx-target="email-input" hx-swap="outerHTML">
+        <label for="inputPassword" class="form-label">Password</label>
+        <input type="password" class="form-control" id="inputPassword" hx-post="/register/password"/>
+      </div>
+      <div class="col-md-6">
+        <label for="validationCustom01" class="form-label">First name</label>
+        <input type="text" class="form-control" id="validationCustom01" value="" required/>
+        <div class="invalid-feedback">
+          Field cannot be empty
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label for="validationCustom02" class="form-label">Last name</label>
+        <input type="text" class="form-control" id="validationCustom02" value="" required/>
+        <div class="invalid-feedback">
+          Field cannot be empty
+        </div>
+      </div>
+
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary">Sign up</button>
+      </div>
+    </form>
+}
+

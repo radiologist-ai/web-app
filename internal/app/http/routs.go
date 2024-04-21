@@ -14,6 +14,6 @@ func NewRouter(handlers *handlers.Handlers) (*http.ServeMux, error) {
 
 	// auth
 	mux.HandleFunc("GET /", handlers.WithHTMLResponse(handlers.HandleIndex))
-
+	mux.HandleFunc("GET /register", handlers.WithHTMLResponse(handlers.HandleRegister))
 	return mux, nil
 }
