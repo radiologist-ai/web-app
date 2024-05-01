@@ -1,5 +1,15 @@
 package views
 
+import "github.com/radiologist-ai/web-app/internal/domain"
+
+templ UnauthenticatedIndex() {
+<div>asd</div>
+}
+
+templ AuthenticatedIndex(user *domain.UserRepoModel) {
+<div>asd</div>
+}
+
 templ Index() {
     <h1>AI Radiologist</h1>
 }

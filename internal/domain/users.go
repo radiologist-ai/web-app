@@ -1,11 +1,15 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type UsersService interface {
 	AuthService
+	UsersValidator
 	GetByEmail(ctx context.Context, email string) (user UserRepoModel, err error)
-	CreateOne(ctx context.Context, user UserRepoModel) (UserRepoModel, error)
+	CreateOne(ctx context.Context, user UserForm) (UserRepoModel, error)
 }
 
 type UsersRepository interface {
@@ -18,12 +22,19 @@ type AuthService interface {
 	ValidateToken(ctx context.Context, token string) (email string, err error)
 }
 
+type UsersValidator interface {
+	ValidatePassword(password string) error
+}
+
 type UserRepoModel struct {
-	ID           int
-	FirstName    string
-	LastName     string
-	Email        string
-	PasswordHash []byte
+	ID           int       `db:"id"`
+	FirstName    string    `db:"first_name"`
+	LastName     string    `db:"last_name"`
+	Email        string    `db:"email"`
+	PasswordHash []byte    `db:"password_hash"`
+	IsDoctor     bool      `db:"is_doctor"`
+	CreatedAt    time.Time `db:"created_at"`
+	UpdatedAt    time.Time `db:"updated_at"`
 }
 
 type UserForm struct {
@@ -31,4 +42,5 @@ type UserForm struct {
 	LastName  string
 	Email     string
 	Password  string
+	IsDoctor  bool
 }

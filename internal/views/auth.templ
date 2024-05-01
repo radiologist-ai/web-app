@@ -1,33 +1,92 @@
 package views
 
-templ RegistrationForm() {
-    <form class="row g-3 needs-validation" hx-post="/register">
-      <div class="col-md-6"  hx-target="email-input" hx-swap="outerHTML">
-        <label for="inputEmail" class="form-label">Email</label>
-        <input type="email" class="form-control" id="inputEmail" hx-post="/register/email"/>
-      </div>
-      <div class="col-md-6" hx-target="email-input" hx-swap="outerHTML">
+
+templ EmailInput(isValidClass, val string) {
+    <div class="col-md-6" id="emailInput">
+            <label for="inputEmail" class="form-label">Email</label>
+            <input type="email" class={ "form-control", isValidClass } name="email" id="inputEmail" value={ val }
+            hx-post="/validate/email"
+            hx-trigger="change"
+            hx-target="#emailInput"
+            hx-swap="outerHTML"
+            required/>
+            <div class="invalid-feedback" id="feedbackEmail">
+                 Invalid Email
+            </div>
+    </div>
+}
+
+templ PasswordInput(isValidClass, val, feedback string) {
+    <div class="col-md-6" id="passwordInput">
         <label for="inputPassword" class="form-label">Password</label>
-        <input type="password" class="form-control" id="inputPassword" hx-post="/register/password"/>
-      </div>
+        <input type="password" class={ "form-control", isValidClass } name="password" id="inputPassword" value={ val }
+        hx-post="/validate/password"
+        hx-trigger="change"
+        hx-target="#passwordInput"
+        hx-swap="outerHTML"
+        required/>
+        <div class="invalid-feedback" id="feedbackPassword">
+            { feedback }
+        </div>
+    </div>
+}
+
+
+templ RegistrationForm() {
+    { children... }
+    <form id="registerForm" class="row g-3 needs-validation"
+    action="/register"
+    method="POST"
+    novalidate>
+      @EmailInput("", "")
+      @PasswordInput("", "", "Invalid Password")
       <div class="col-md-6">
         <label for="validationCustom01" class="form-label">First name</label>
-        <input type="text" class="form-control" id="validationCustom01" value="" required/>
+        <input type="text" class="form-control" name="firstName" id="validationCustom01" value="" required/>
         <div class="invalid-feedback">
           Field cannot be empty
         </div>
+
       </div>
       <div class="col-md-6">
         <label for="validationCustom02" class="form-label">Last name</label>
-        <input type="text" class="form-control" id="validationCustom02" value="" required/>
+        <input type="text" class="form-control" name="lastName" id="validationCustom02" value="" required/>
         <div class="invalid-feedback">
           Field cannot be empty
         </div>
       </div>
-
+      <div class="col-md-6">
+      <div class="form-check form-switch">
+        <input class="form-check-input" name="isDoctor" type="checkbox" id="flexSwitchCheckDefault"/>
+        <label class="form-check-label" for="flexSwitchCheckDefault">I am a Doctor</label>
+      </div>
+      </div>
       <div class="col-12">
         <button type="submit" class="btn btn-primary">Sign up</button>
       </div>
     </form>
+    <script>
+      document.getElementById('registerForm').addEventListener('submit', function(event) {
+        const form = event.target;
+
+        if (!form.checkValidity()) {
+          event.preventDefault(); // Prevent form submission if validation fails
+          event.stopPropagation();
+        }
+
+        form.classList.add('was-validated'); // Add Bootstrap's 'was-validated' class for styling
+      });
+    </script>
 }
 
+templ RegistrationFormBad(errs ...string) {
+    @RegistrationForm() {
+        <div>
+            <ul>
+            for _, err := range errs {
+                <li> { err } </li>
+            }
+            </ul>
+        </div>
+    }
+}

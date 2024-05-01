@@ -2,9 +2,12 @@ package app
 
 import (
 	"context"
+	"embed"
 	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+	"github.com/pressly/goose/v3"
 	http2 "github.com/radiologist-ai/web-app/internal/app/http"
 	"github.com/radiologist-ai/web-app/internal/app/http/handlers"
 	"github.com/radiologist-ai/web-app/internal/app/users/usersrepo"
@@ -18,16 +21,19 @@ import (
 	"time"
 )
 
+//go:embed migrations/*.sql
+var embedMigrations embed.FS
+
 func Run(backgroundCtx context.Context, wg *sync.WaitGroup) error {
 	defer wg.Done()
 
 	cfg := config.GetConfig()
 
 	logger := ptr.Pointer(zerolog.New(os.Stderr).With().Timestamp().Caller().Logger())
-	// TODO Unmock
-	db := &sqlx.DB{
-		DB:     nil,
-		Mapper: nil,
+
+	db, err := PreparePostgres(cfg.Database)
+	if err != nil {
+		return err
 	}
 
 	// repository
@@ -86,4 +92,22 @@ func Run(backgroundCtx context.Context, wg *sync.WaitGroup) error {
 	return nil
 }
 
-//func PreparePostgres(cfg)
+func PreparePostgres(cfg config.Database) (*sqlx.DB, error) {
+	db, err := sqlx.Connect("postgres",
+		fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
+			cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database))
+	if err != nil {
+		return nil, err
+	}
+
+	goose.SetBaseFS(embedMigrations)
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		return nil, err
+	}
+
+	if err := goose.Up(db.DB, "migrations"); err != nil {
+		return nil, err
+	}
+	return db, nil
+}

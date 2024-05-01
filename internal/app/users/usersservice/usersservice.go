@@ -37,7 +37,14 @@ func (s *Service) GetByEmail(ctx context.Context, email string) (user domain.Use
 	panic("implement me")
 }
 
-func (s *Service) CreateOne(ctx context.Context, user domain.UserRepoModel) (domain.UserRepoModel, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *Service) CreateOne(ctx context.Context, user domain.UserForm) (domain.UserRepoModel, error) {
+	if err := s.validateRegisterForm(user); err != nil {
+		return domain.UserRepoModel{}, err
+	}
+	repoModel := s.userFormToUserRepoModel(user)
+	newUser, err := s.repo.InsertOne(ctx, repoModel)
+	if err != nil {
+		return domain.UserRepoModel{}, err
+	}
+	return newUser, nil
 }
