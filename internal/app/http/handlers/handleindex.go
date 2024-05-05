@@ -6,7 +6,7 @@ import (
 )
 
 func (h *Handlers) HandleIndex(w http.ResponseWriter, r *http.Request) {
-	if err := views.Index().Render(r.Context(), w); err != nil {
+	if err := views.Layout(views.Index(), "Radiologist AI").Render(r.Context(), w); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
