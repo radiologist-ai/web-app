@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS users(
                         id bigserial PRIMARY KEY,
                         first_name TEXT NOT NULL,
                         last_name TEXT NOT NULL,
-                        email TEXT NOT NULL,
+                        email TEXT NOT NULL UNIQUE,
                         password_hash BYTEA NOT NULL,
                         is_doctor BOOLEAN NOT NULL,
                         created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,

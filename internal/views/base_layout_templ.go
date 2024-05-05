@@ -81,7 +81,7 @@ func footer() templ.Component {
 	})
 }
 
-func nav(user *domain.UserRepoModel) templ.Component {
+func Nav(user *domain.UserRepoModel) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -94,7 +94,7 @@ func nav(user *domain.UserRepoModel) templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"navbar navbar-expand-lg navbar-light bg-light\"><div class=\"container-fluid\"><a class=\"navbar-brand\" href=\"/\">Radiologist AI</a> <button class=\"navbar-toggler\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#navbarNavDropdown\" aria-controls=\"navbarNavDropdown\" aria-expanded=\"false\" aria-label=\"Toggle navigation\"><span class=\"navbar-toggler-icon\"></span></button><div class=\"collapse navbar-collapse justify-content-end\" id=\"navbarNavDropdown\"><ul class=\"navbar-nav\"><li class=\"nav-item\"><a class=\"nav-link active\" aria-current=\"page\" href=\"#\">Home</a></li>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav id=\"mainNav\" class=\"navbar navbar-expand-lg navbar-light bg-light\"><div class=\"container-fluid\"><a class=\"navbar-brand\" href=\"/\">Radiologist AI</a> <button class=\"navbar-toggler\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#navbarNavDropdown\" aria-controls=\"navbarNavDropdown\" aria-expanded=\"false\" aria-label=\"Toggle navigation\"><span class=\"navbar-toggler-icon\"></span></button><div class=\"collapse navbar-collapse justify-content-end\" id=\"navbarNavDropdown\"><ul class=\"navbar-nav\"><li class=\"nav-item\"><a class=\"nav-link active\" aria-current=\"page\" href=\"/home\">Home</a></li>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -117,7 +117,7 @@ func nav(user *domain.UserRepoModel) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a><ul class=\"dropdown-menu\" aria-labelledby=\"navbarDropdownMenuLink\"><li><a class=\"dropdown-item\" href=\"/users/{user.ID}/reports\">Library</a></li><li><a class=\"dropdown-item\" href=\"/settings\">Settings</a></li><li><a class=\"dropdown-item btn-outline-danger\" href=\"/logout\">Log out</a></li></ul></li>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a><ul class=\"dropdown-menu\" aria-labelledby=\"navbarDropdownMenuLink\"><li><a class=\"dropdown-item\" href=\"/users/{user.ID}/reports\">Library</a></li><li><a class=\"dropdown-item\" href=\"/settings\">Settings</a></li><li><a class=\"dropdown-item btn-outline-danger\" href=\"#\" hx-post=\"/logout\" hx-trigger=\"click\" hx-swap=\"outerHTML\" hx-target=\"#mainNav\">Log out</a></li></ul></li>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -154,7 +154,7 @@ func Layout(contents templ.Component, title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = nav(GetCurrentUser(ctx)).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = Nav(GetCurrentUser(ctx)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -1,23 +1,60 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"github.com/radiologist-ai/web-app/internal/domain"
 	"github.com/radiologist-ai/web-app/internal/domain/customerrors"
 	"github.com/radiologist-ai/web-app/internal/views"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"net/mail"
+	"time"
 )
 
-func (h *Handlers) HandleRegister(w http.ResponseWriter, r *http.Request) {
-	_, ok := GetCurrentUser(r.Context())
+func (h *Handlers) PostLogout(w http.ResponseWriter, r *http.Request) {
+	cookie := http.Cookie{Name: domain.AuthTokenCookieKey, Value: "", Expires: time.Time{}}
+	http.SetCookie(w, &cookie)
+	ctx := context.WithValue(r.Context(), domain.CurrentUserCtxKey, nil)
+	r = r.WithContext(ctx)
+	if err := views.Nav(nil).Render(r.Context(), w); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	return
+}
+
+func (h *Handlers) PostLogin(w http.ResponseWriter, r *http.Request) {
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+	user, ok, err := h.users.GetByEmail(r.Context(), email)
+	if err != nil {
+		http.Redirect(w, r, "/internal_server_error", http.StatusFound)
+		return
+	}
 	if !ok {
-		if err := views.Layout(views.RegistrationForm(), "Radiologist AI").Render(r.Context(), w); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+		if err := views.Layout(views.LoginFormUserDoesntExist(), "Radiologist AI").Render(r.Context(), w); err != nil {
+			http.Redirect(w, r, "/internal_server_error", http.StatusFound)
 		}
 		return
 	}
-	http.Redirect(w, r, "/", http.StatusOK)
+	if bcrypt.CompareHashAndPassword(user.PasswordHash, []byte(password)) != nil {
+		if err := views.Layout(views.LoginFormWrongPassword(), "Radiologist AI").Render(r.Context(), w); err != nil {
+			http.Redirect(w, r, "/internal_server_error", http.StatusFound)
+		}
+	}
+
+	token, err := h.users.GenerateToken(h.secret, user.Email)
+	if err != nil {
+		h.logger.Error().Err(err).Any("user", user).Msg("Error generating token")
+		http.Redirect(w, r, "/internal_server_error", http.StatusFound)
+		return
+	}
+
+	expiration := time.Now().Add(365 * 24 * time.Hour)
+	cookie := http.Cookie{Name: domain.AuthTokenCookieKey, Value: token, Expires: expiration}
+	http.SetCookie(w, &cookie)
+	http.Redirect(w, r, "/home", http.StatusFound)
+	return
 }
 
 func (h *Handlers) PostRegister(w http.ResponseWriter, r *http.Request) {
@@ -28,36 +65,53 @@ func (h *Handlers) PostRegister(w http.ResponseWriter, r *http.Request) {
 	form.LastName = r.FormValue("lastName")
 	form.IsDoctor = r.FormValue("isDoctor") == "on"
 
-	if _, err := h.users.CreateOne(r.Context(), form); err != nil {
+	user, err := h.users.CreateOne(r.Context(), form)
+	if err != nil {
 		if errors.Is(err, customerrors.ValidationError) {
 			errTxt := ValidationErrorToResponseText(err)
 			if err := views.Layout(views.RegistrationFormBad(errTxt), "Radiologist AI").Render(r.Context(), w); err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
+				http.Redirect(w, r, "/internal_server_error", http.StatusFound)
 			}
 			return
 		}
-		http.Redirect(w, r, "/internal_server_error", http.StatusInternalServerError)
+		http.Redirect(w, r, "/internal_server_error", http.StatusFound)
 		return
 	}
-	http.Redirect(w, r, "/internal_server_error", http.StatusCreated)
+	token, err := h.users.GenerateToken(h.secret, user.Email)
+	if err != nil {
+		h.logger.Error().Err(err).Any("user", user).Msg("Error generating token")
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return
+	}
+
+	expiration := time.Now().Add(365 * 24 * time.Hour)
+	cookie := http.Cookie{Name: domain.AuthTokenCookieKey, Value: token, Expires: expiration}
+	http.SetCookie(w, &cookie)
+	http.Redirect(w, r, "/home", http.StatusFound)
 	return
 }
 
 func (h *Handlers) ValidateEmail(w http.ResponseWriter, r *http.Request) {
 	var email = r.FormValue("email")
 	if email == "" {
-		if err := views.EmailInput("", email).Render(r.Context(), w); err != nil {
+		if err := views.EmailInput("", email, "Invalid Email").Render(r.Context(), w); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
 	}
 	if _, err := mail.ParseAddress(email); err != nil {
-		if err = views.EmailInput("is-invalid", email).Render(r.Context(), w); err != nil {
+		if err = views.EmailInput("is-invalid", email, "Invalid Email").Render(r.Context(), w); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
 	}
-	if err := views.EmailInput("is-valid", email).Render(r.Context(), w); err != nil {
+	if _, ok, _ := h.users.GetByEmail(r.Context(), email); ok {
+		if err := views.EmailInput("is-invalid", email, "User with same email already exists").Render(r.Context(), w); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		return
+	}
+	if err := views.EmailInput("is-valid", email, "Invalid Email").Render(r.Context(), w); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

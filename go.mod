@@ -4,10 +4,12 @@ go 1.22
 
 require (
 	github.com/a-h/templ v0.2.663
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.2.0
 	github.com/pressly/goose/v3 v3.20.0
 	github.com/rs/zerolog v1.32.0
+	golang.org/x/crypto v0.21.0
 )
 
 require (

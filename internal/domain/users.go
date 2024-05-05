@@ -8,18 +8,18 @@ import (
 type UsersService interface {
 	AuthService
 	UsersValidator
-	GetByEmail(ctx context.Context, email string) (user UserRepoModel, err error)
+	GetByEmail(ctx context.Context, email string) (user UserRepoModel, ok bool, err error)
 	CreateOne(ctx context.Context, user UserForm) (UserRepoModel, error)
 }
 
 type UsersRepository interface {
-	SelectByEmail(ctx context.Context, email string) (user UserRepoModel, err error)
+	SelectByEmail(ctx context.Context, email string) (user UserRepoModel, ok bool, err error)
 	InsertOne(ctx context.Context, model UserRepoModel) (user UserRepoModel, err error)
 }
 
 type AuthService interface {
-	GenerateToken(ctx context.Context, email string) (token string, err error)
-	ValidateToken(ctx context.Context, token string) (email string, err error)
+	GenerateToken(secret []byte, email string) (token string, err error)
+	ValidateToken(secret []byte, token string) (email string, err error)
 }
 
 type UsersValidator interface {

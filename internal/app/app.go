@@ -49,7 +49,7 @@ func Run(backgroundCtx context.Context, wg *sync.WaitGroup) error {
 	}
 
 	// handlers
-	handle, err := handlers.NewHandlers(logger, usersService)
+	handle, err := handlers.NewHandlers(logger, usersService, cfg.Server.Secret)
 	if err != nil {
 		return err
 	}

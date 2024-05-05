@@ -1,3 +1,6 @@
 package domain
 
-const CurrentUserCtxKey = "CurrentUser"
+const (
+	CurrentUserCtxKey  = "current_user"
+	AuthTokenCookieKey = "auth_token"
+)

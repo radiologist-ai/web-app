@@ -2,9 +2,11 @@ package usersrepo
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	"github.com/radiologist-ai/web-app/internal/domain"
 	"github.com/radiologist-ai/web-app/internal/domain/customerrors"
 	"github.com/rs/zerolog"
@@ -28,9 +30,15 @@ func New(logger *zerolog.Logger, db *sqlx.DB) (*Repo, error) {
 	}, nil
 }
 
-func (r *Repo) SelectByEmail(ctx context.Context, email string) (user domain.UserRepoModel, err error) {
-	//TODO implement me
-	panic("implement me")
+func (r *Repo) SelectByEmail(ctx context.Context, email string) (user domain.UserRepoModel, ok bool, err error) {
+	q := `SELECT id, first_name, last_name, email, password_hash, is_doctor, created_at, updated_at FROM users WHERE email = $1 LIMIT 1`
+	if err := r.db.QueryRowxContext(ctx, q, email).StructScan(&user); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.UserRepoModel{}, false, nil
+		}
+		return domain.UserRepoModel{}, false, err
+	}
+	return user, true, nil
 }
 
 func (r *Repo) InsertOne(ctx context.Context, model domain.UserRepoModel) (user domain.UserRepoModel, err error) {
@@ -48,6 +56,10 @@ func (r *Repo) InsertOne(ctx context.Context, model domain.UserRepoModel) (user 
 		}
 	}()
 	if user, err = r.insertUser(ctx, tx, model); err != nil {
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) && pqErr.Code == "23505" {
+			return domain.UserRepoModel{}, customerrors.ValidationErrorEmailAlreadyInUse
+		}
 		return
 	}
 	if !model.IsDoctor {

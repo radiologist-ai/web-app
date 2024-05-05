@@ -1,7 +1,7 @@
 package views
 
 
-templ EmailInput(isValidClass, val string) {
+templ EmailInput(isValidClass, val, feedback string) {
     <div class="col-md-6" id="emailInput">
             <label for="inputEmail" class="form-label">Email</label>
             <input type="email" class={ "form-control", isValidClass } name="email" id="inputEmail" value={ val }
@@ -11,7 +11,7 @@ templ EmailInput(isValidClass, val string) {
             hx-swap="outerHTML"
             required/>
             <div class="invalid-feedback" id="feedbackEmail">
-                 Invalid Email
+                 { feedback }
             </div>
     </div>
 }
@@ -38,7 +38,7 @@ templ RegistrationForm() {
     action="/register"
     method="POST"
     novalidate>
-      @EmailInput("", "")
+      @EmailInput("", "", "Invalid Email")
       @PasswordInput("", "", "Invalid Password")
       <div class="col-md-6">
         <label for="validationCustom01" class="form-label">First name</label>
@@ -66,16 +66,34 @@ templ RegistrationForm() {
       </div>
     </form>
     <script>
-      document.getElementById('registerForm').addEventListener('submit', function(event) {
-        const form = event.target;
+      (() => {
+        'use strict'
 
-        if (!form.checkValidity()) {
-          event.preventDefault(); // Prevent form submission if validation fails
-          event.stopPropagation();
-        }
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        const forms = document.querySelectorAll('.needs-validation')
 
-        form.classList.add('was-validated'); // Add Bootstrap's 'was-validated' class for styling
-      });
+        // Loop over them and prevent submission
+        Array.from(forms).forEach(form => {
+          form.addEventListener('submit', event => {
+            const form = event.target;
+
+            let flag = false;
+            Array.from(form.elements).forEach(el => {
+                if (el.classList.contains('is-invalid')) {
+                   el.classList.add('border-danger')
+                   flag = true
+                }
+            })
+
+            if (!form.checkValidity() || flag) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+
+            form.classList.add('was-validated');
+          }, false)
+        })
+      })()
     </script>
 }
 
@@ -87,6 +105,47 @@ templ RegistrationFormBad(errs ...string) {
                 <li> { err } </li>
             }
             </ul>
+        </div>
+    }
+}
+
+templ LoginForm() {
+    { children... }
+    <form id="loginForm" class="row g-3 needs-validation"
+    action="/login"
+    method="POST">
+        <div class="col-md-12" id="emailInputLogin">
+                <label for="inputEmailLogin" class="form-label">Email</label>
+                <input type="email" class="form-control" name="email" id="inputEmailLogin" required/>
+                <div class="invalid-feedback" id="feedbackEmail">
+                     Invalid Email
+                </div>
+        </div>
+        <div class="col-md-12" id="passwordInputLogin">
+            <label for="inputPasswordLogin" class="form-label">Password</label>
+            <input type="password" class="form-control" name="password" id="inputPasswordLogin" required/>
+            <div class="invalid-feedback" id="feedbackPassword">
+                Invalid Password
+            </div>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Log in</button>
+        </div>
+    </form>
+}
+
+templ LoginFormUserDoesntExist() {
+    @LoginForm() {
+        <div class="alert alert-warning" role="alert">
+          User for provided credentials doesn't exist. <a href="/register" class="alert-link">Sign up?</a>
+        </div>
+    }
+}
+
+templ LoginFormWrongPassword() {
+    @LoginForm() {
+        <div class="alert alert-danger" role="alert">
+          Wrong Password! Try again.
         </div>
     }
 }

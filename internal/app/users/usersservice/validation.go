@@ -46,7 +46,7 @@ func (s *Service) validateRegisterForm(form domain.UserForm) error {
 		return customerrors.ValidationErrorFirstNameEmpty
 	}
 	if _, err := mail.ParseAddress(form.Email); err != nil {
-		return customerrors.ValidationErrorEmail
+		return customerrors.ValidationErrorEmailInvalid
 	}
 	if err := s.ValidatePassword(form.Password); err != nil {
 		return err
