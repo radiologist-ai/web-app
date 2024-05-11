@@ -10,6 +10,8 @@ import (
 	"github.com/pressly/goose/v3"
 	http2 "github.com/radiologist-ai/web-app/internal/app/http"
 	"github.com/radiologist-ai/web-app/internal/app/http/handlers"
+	"github.com/radiologist-ai/web-app/internal/app/patient/patientrepo"
+	"github.com/radiologist-ai/web-app/internal/app/patient/patientservice"
 	"github.com/radiologist-ai/web-app/internal/app/users/usersrepo"
 	"github.com/radiologist-ai/web-app/internal/app/users/usersservice"
 	"github.com/radiologist-ai/web-app/internal/config"
@@ -41,15 +43,23 @@ func Run(backgroundCtx context.Context, wg *sync.WaitGroup) error {
 	if err != nil {
 		return err
 	}
+	patientRepo, err := patientrepo.New(db, logger)
+	if err != nil {
+		return err
+	}
 
 	// service
 	usersService, err := usersservice.New(logger, usersRepo)
 	if err != nil {
 		return err
 	}
+	patientService, err := patientservice.New(logger, patientRepo)
+	if err != nil {
+		return err
+	}
 
 	// handlers
-	handle, err := handlers.NewHandlers(logger, usersService, cfg.Server.Secret)
+	handle, err := handlers.NewHandlers(logger, usersService, patientService, cfg.Server.Secret)
 	if err != nil {
 		return err
 	}

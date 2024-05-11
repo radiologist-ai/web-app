@@ -117,7 +117,17 @@ func Nav(user *domain.UserRepoModel) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a><ul class=\"dropdown-menu\" aria-labelledby=\"navbarDropdownMenuLink\"><li><a class=\"dropdown-item\" href=\"/users/{user.ID}/reports\">Library</a></li><li><a class=\"dropdown-item\" href=\"/settings\">Settings</a></li><li><a class=\"dropdown-item btn-outline-danger\" href=\"#\" hx-post=\"/logout\" hx-trigger=\"click\" hx-swap=\"outerHTML\" hx-target=\"#mainNav\">Log out</a></li></ul></li>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a><ul class=\"dropdown-menu\" aria-labelledby=\"navbarDropdownMenuLink\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if !user.IsDoctor {
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li><a class=\"dropdown-item\" href=\"/patient/me/reports\">Library</a></li>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li><a class=\"dropdown-item btn-outline-danger\" href=\"#\" hx-post=\"/logout\" hx-trigger=\"click\" hx-swap=\"outerHTML\" hx-target=\"#mainNav\">Log out</a></li></ul></li>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

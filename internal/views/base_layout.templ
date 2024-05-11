@@ -52,8 +52,9 @@ templ Nav(user *domain.UserRepoModel){
                         { user.FirstName }
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                    <li><a class="dropdown-item" href="/users/{user.ID}/reports">Library</a></li>
-                    <li><a class="dropdown-item" href="/settings">Settings</a></li>
+                    if !user.IsDoctor {
+                        <li><a class="dropdown-item" href="/patient/me/reports">Library</a></li>
+                    }
                     <li><a class="dropdown-item btn-outline-danger" href="#"
                         hx-post="/logout"
                         hx-trigger="click"
