@@ -62,11 +62,7 @@ func NewRouter(handlers *handlers.Handlers) (*http.ServeMux, error) {
 	mux.HandleFunc("GET /home",
 		handlers.WithHTMLResponse(
 			handlers.WithCurrentUser(
-				templ.Handler(
-					views.Layout(
-						views.Home(),
-						"Home")).
-					ServeHTTP)))
+				handlers.GetHomeHandler)))
 
 	mux.HandleFunc("POST /my-patients",
 		handlers.WithCurrentUser(

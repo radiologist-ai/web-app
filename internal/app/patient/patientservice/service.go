@@ -26,6 +26,18 @@ func (ps *PatientService) CreatePatient(ctx context.Context, creator domain.User
 	return patient, nil
 }
 
+func (ps *PatientService) GetAll(ctx context.Context, currentUser domain.UserRepoModel) ([]domain.PatientRepoModel, error) {
+	if !currentUser.IsDoctor {
+		return nil, fmt.Errorf("%wonly doctor can create patient. ", customerrors.NeedToBeDoctor)
+	}
+	res, err := ps.repo.SelectAll(ctx, currentUser.ID)
+	if err != nil {
+		ps.logger.Error().Err(err).Int("user_id", currentUser.ID).Msg("patient query failed")
+		return nil, err
+	}
+	return res, nil
+}
+
 func New(logger *zerolog.Logger, repo domain.PatientRepository) (*PatientService, error) {
 	if logger == nil {
 		return nil, fmt.Errorf("logger can not be nil")

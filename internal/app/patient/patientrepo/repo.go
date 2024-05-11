@@ -28,6 +28,20 @@ func (pr *PatientRepo) InsertPatient(ctx context.Context, patient domain.Patient
 	return res, nil
 }
 
+func (pr *PatientRepo) SelectAll(ctx context.Context, userID int) ([]domain.PatientRepoModel, error) {
+	res := make([]domain.PatientRepoModel, 0)
+	query := `
+		SELECT id, user_id, creator_id, name, patient_identifier, created_at, updated_at
+		FROM patients WHERE creator_id=$1 
+		ORDER BY updated_at DESC
+`
+	err := pr.db.SelectContext(ctx, &res, query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("%w%w", customerrors.InternalErrorSQL, err)
+	}
+	return res, nil
+}
+
 func New(db *sqlx.DB, logger *zerolog.Logger) (*PatientRepo, error) {
 	if logger == nil {
 		return nil, errors.New("logger required")

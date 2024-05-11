@@ -18,8 +18,10 @@ type PatientRepoModel struct {
 
 type PatientService interface {
 	CreatePatient(ctx context.Context, creator UserRepoModel, form PatientRepoModel) (PatientRepoModel, error)
+	GetAll(ctx context.Context, currentUser UserRepoModel) ([]PatientRepoModel, error)
 }
 
 type PatientRepository interface {
 	InsertPatient(ctx context.Context, patient PatientRepoModel) (PatientRepoModel, error)
+	SelectAll(ctx context.Context, userID int) ([]PatientRepoModel, error)
 }

@@ -11,7 +11,6 @@ import "io"
 import "bytes"
 
 import "github.com/radiologist-ai/web-app/internal/domain"
-import "github.com/google/uuid"
 import templ2 "github.com/a-h/templ"
 
 func PatientCard(patient domain.PatientRepoModel) templ.Component {
@@ -39,7 +38,7 @@ func PatientCard(patient domain.PatientRepoModel) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(patient.PatientIdentifier)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\views\home.templ`, Line: 11, Col: 37}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\views\home.templ`, Line: 10, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -57,7 +56,7 @@ func PatientCard(patient domain.PatientRepoModel) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(patient.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\views\home.templ`, Line: 16, Col: 24}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\views\home.templ`, Line: 15, Col: 24}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -96,12 +95,12 @@ func PatientsList(patients []domain.PatientRepoModel) templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"container\"><div class=\"row\"><h3>Patients</h3><div class=\"d-grid gap-2 d-md-flex\"><button class=\"btn btn-primary\" type=\"button\" data-bs-toggle=\"modal\" data-bs-target=\"#createPatientModal\">Add New</button></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"container\"><div class=\"row\"><h3 class=\"mb-3\">Patients</h3><div class=\"d-grid gap-2 d-md-flex mb-5\"><button class=\"btn btn-primary\" type=\"button\" data-bs-toggle=\"modal\" data-bs-target=\"#createPatientModal\">Add New</button></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, patient := range patients {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"row\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"row mb-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -149,7 +148,7 @@ func CreatePatientModal(currentUser *domain.UserRepoModel) templ.Component {
 	})
 }
 
-func InnerHome(currentUser *domain.UserRepoModel) templ.Component {
+func InnerHome(currentUser *domain.UserRepoModel, patients []domain.PatientRepoModel) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -171,9 +170,11 @@ func InnerHome(currentUser *domain.UserRepoModel) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = PatientsList([]domain.PatientRepoModel{{Name: "asd"}, {Name: "qwe", PatientIdentifier: "ET798E72", ID: uuid.New()}}).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
+			if patients != nil {
+				templ_7745c5c3_Err = PatientsList(patients).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
 		} else if currentUser != nil && !currentUser.IsDoctor {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h2>Placeholder TODO </h2>")
@@ -188,7 +189,7 @@ func InnerHome(currentUser *domain.UserRepoModel) templ.Component {
 	})
 }
 
-func Home() templ.Component {
+func Home(patients []domain.PatientRepoModel) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -205,7 +206,7 @@ func Home() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = InnerHome(GetCurrentUser(ctx)).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = InnerHome(GetCurrentUser(ctx), patients).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
