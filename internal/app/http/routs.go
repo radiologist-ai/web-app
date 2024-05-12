@@ -69,6 +69,34 @@ func NewRouter(handlers *handlers.Handlers) (*http.ServeMux, error) {
 			handlers.AuthRequired(
 				handlers.PostPatientHandler)))
 
+	mux.HandleFunc("GET /patients/{patientID}/reports",
+		handlers.WithHTMLResponse(
+			handlers.WithCurrentUser(
+				handlers.AuthRequired(
+					handlers.GetPatientHandler))))
+
+	mux.HandleFunc("GET /link-account",
+		handlers.WithHTMLResponse(
+			handlers.WithCurrentUser(
+				handlers.AuthRequired(
+					templ.Handler(
+						views.Layout(
+							views.LinkAccountPage(),
+							"Link account")).
+						ServeHTTP))))
+
+	mux.HandleFunc("POST /link-account",
+		handlers.WithHTMLResponse(
+			handlers.WithCurrentUser(
+				handlers.AuthRequired(
+					handlers.PostLinkAccountHandler))))
+
+	mux.HandleFunc("GET /my-accounts",
+		handlers.WithHTMLResponse(
+			handlers.WithCurrentUser(
+				handlers.AuthRequired(
+					handlers.GetMyAccountsHandler))))
+
 	// technical
 	mux.HandleFunc("GET /internal_server_error",
 		handlers.WithHTMLResponse(
