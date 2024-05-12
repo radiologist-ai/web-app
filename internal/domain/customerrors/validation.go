@@ -20,4 +20,5 @@ var (
 	ValidationErrorFirstNameEmpty                 = fmt.Errorf("%wempty first name. ", ValidationErrorFirstName)
 	ValidationErrorLastNameEmpty                  = fmt.Errorf("%wempty last name. ", ValidationErrorLastName)
 	ValidationErrorJWT                            = fmt.Errorf("%winvalid JWT. ", ValidationError)
+	ValidationErrorUUID                           = fmt.Errorf("%winvalid UUID. ", ValidationError)
 )

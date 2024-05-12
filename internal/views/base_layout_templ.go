@@ -104,20 +104,30 @@ func Nav(user *domain.UserRepoModel) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li class=\"nav-item dropdown\"><a class=\"nav-link dropdown-toggle\" href=\"#\" id=\"navbarDropdownMenuLink\" role=\"button\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li class=\"nav-item dropdown\"><div class=\"btn-group dropstart\"><a class=\"nav-link dropdown-toggle\" href=\"#\" id=\"navbarDropdownMenuLink\" role=\"button\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(user.FirstName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\views\base_layout.templ`, Line: 52, Col: 40}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal\views\base_layout.templ`, Line: 53, Col: 40}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a><ul class=\"dropdown-menu\" aria-labelledby=\"navbarDropdownMenuLink\"><li><a class=\"dropdown-item\" href=\"/users/{user.ID}/reports\">Library</a></li><li><a class=\"dropdown-item\" href=\"/settings\">Settings</a></li><li><a class=\"dropdown-item btn-outline-danger\" href=\"#\" hx-post=\"/logout\" hx-trigger=\"click\" hx-swap=\"outerHTML\" hx-target=\"#mainNav\">Log out</a></li></ul></li>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a><ul class=\"dropdown-menu dropdown-menu-start\" aria-labelledby=\"navbarDropdownMenuLink\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if !user.IsDoctor {
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li><a class=\"dropdown-item\" href=\"/link-account\">Link Patient Account</a></li>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li><a class=\"dropdown-item btn-outline-danger m-1\" href=\"#\" hx-post=\"/logout\" hx-trigger=\"click\" hx-swap=\"outerHTML\" hx-target=\"#mainNav\">Log out</a></li></ul></div></li>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

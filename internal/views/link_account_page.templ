@@ -1,0 +1,77 @@
+package views
+
+import "github.com/google/uuid"
+import "github.com/radiologist-ai/web-app/internal/domain"
+
+templ LinkAccountForm(comment string, success bool) {
+    <form id="linkAccountForm" class="form-control needs-validation"
+    hx-trigger="submit"
+    hx-target="#linkAccountForm"
+    hx-swap="outerHTML"
+    hx-post="/link-account"
+    >
+        <div class="mb-3">
+            <label for="inputPatientID" class="form-label">Linking code (ID)</label>
+            <input name="patientID" placeholder={ uuid.UUID{}.String() } type="text" class="form-control" id="inputPatientID" aria-describedby="inputPatientIDHelp" required/>
+            <div id="inputPatientIDHelp" class="form-text">Put there code that your doctor gave you.</div>
+        </div>
+
+        if comment != "" {
+            if success {
+                <div class="alert alert-success" role="alert">
+                  { comment }
+                </div>
+            } else {
+                <div class="alert alert-danger" role="alert">
+                  { comment }
+                </div>
+            }
+        }
+
+        <button type="submit" class="btn btn-primary">Link account</button>
+    </form>
+}
+
+templ ListOfAccounts(accounts []domain.PatientAccountInfo) {
+    <div id="listOfMyAccounts"
+    hx-trigger="load, submit from:form"
+    hx-get="/my-accounts"
+    hx-target="#innerAccountsList"
+    hx-swap="outerHTML"
+    hx-select="#innerAccountsList"
+    >
+    <div id="innerAccountsList">
+    if accounts != nil {
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Name</th>
+              <th scope="col">Patient Identifier</th>
+              <th scope="col">Doctor Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            for _, acc := range accounts {
+                <tr>
+                  <th scope="row"><code>{ acc.ID.String() }</code></th>
+                  <td>{ acc.Name }</td>
+                  <td>{ acc.PatientIdentifier }</td>
+                  <td>{ acc.DoctorFullName }</td>
+                </tr>
+            }
+          </tbody>
+        </table>    }
+    </div>
+    </div>
+}
+
+templ LinkAccountPage() {
+    <div class="container mb-3">
+        @LinkAccountForm("", false)
+    </div>
+    <div class="container mb-3">
+        @ListOfAccounts(nil)
+    </div>
+
+}

@@ -48,19 +48,22 @@ templ Nav(user *domain.UserRepoModel){
                 </li>
             } else {
                 <li class="nav-item dropdown">
+                <div class="btn-group dropstart">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         { user.FirstName }
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                    <li><a class="dropdown-item" href="/users/{user.ID}/reports">Library</a></li>
-                    <li><a class="dropdown-item" href="/settings">Settings</a></li>
-                    <li><a class="dropdown-item btn-outline-danger" href="#"
+                    <ul class="dropdown-menu dropdown-menu-start" aria-labelledby="navbarDropdownMenuLink">
+                    if !user.IsDoctor {
+                        <li><a class="dropdown-item" href="/link-account">Link Patient Account</a></li>
+                    }
+                    <li><a class="dropdown-item btn-outline-danger m-1" href="#"
                         hx-post="/logout"
                         hx-trigger="click"
                         hx-swap="outerHTML"
                         hx-target="#mainNav"
                         >Log out</a></li>
                     </ul>
+                </div>
                 </li>
             }
           </ul>

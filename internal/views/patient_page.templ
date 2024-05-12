@@ -1,0 +1,28 @@
+package views
+
+import "github.com/radiologist-ai/web-app/internal/domain"
+
+templ PatientInfo(patient domain.PatientRepoModel) {
+    <div class="container m-5">
+        <h1>Patient Profile</h1>
+        <div class="row">
+            <div class="col">
+                <p><strong>ID:</strong> <code>{ patient.ID.String() }</code>
+                if patient.UserID == nil {
+                    <span class="badge bg-info text-dark ml-2">
+                    { "Copy this code and give it to your patient for account linking." }
+                    </span>
+                } else {
+                    <span class="badge bg-success ml-2"> Activated</span>
+                }
+                </p>
+                <p><strong>Name:</strong> { patient.Name }</p>
+                <p><strong>Patient Identifier:</strong> { patient.PatientIdentifier }</p>
+            </div>
+            <div class="col">
+                <p><strong>Created At:</strong> { patient.CreatedAt.Format("2006-01-02 15:04") }</p>
+                <p><strong>Updated At:</strong> { patient.UpdatedAt.Format("2006-01-02 15:04") }</p>
+            </div>
+        </div>
+    </div>
+}

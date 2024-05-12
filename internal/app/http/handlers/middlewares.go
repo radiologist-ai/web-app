@@ -34,8 +34,11 @@ func (h *Handlers) WithCurrentUser(handler func(http.ResponseWriter, *http.Reque
 		if err != nil {
 			goto handle
 		}
-		if user, ok, err = h.users.GetByEmail(r.Context(), email); err != nil || !ok {
-			h.logger.Error().Err(err).Bool("userExists", ok).Str("email", email).Str("token", token).Msg("error or user not found")
+		if user, ok, err = h.users.GetByEmail(r.Context(), email); err != nil {
+			h.logger.Error().Err(err).Str("email", email).Str("token", token).Msg("error")
+			goto handle
+		} else if !ok {
+			h.logger.Warn().Bool("userExists", ok).Str("email", email).Str("token", token).Msg("user not found")
 			goto handle
 		}
 		r = r.WithContext(context.WithValue(r.Context(), domain.CurrentUserCtxKey, user))

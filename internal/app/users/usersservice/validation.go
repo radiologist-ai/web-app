@@ -37,7 +37,6 @@ func (s *Service) ValidatePassword(pwd string) error {
 	return nil
 }
 
-// TODO check if email already in use
 func (s *Service) validateRegisterForm(form domain.UserForm) error {
 	if form.LastName == "" {
 		return customerrors.ValidationErrorLastNameEmpty

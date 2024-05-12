@@ -1,0 +1,87 @@
+package views
+
+import "github.com/radiologist-ai/web-app/internal/domain"
+import templ2 "github.com/a-h/templ"
+
+templ PatientCard(patient domain.PatientRepoModel) {
+    <div class="card" style="width: 18rem;">
+      if patient.PatientIdentifier != "" {
+        <div class="card-header">
+          { patient.PatientIdentifier }
+        </div>
+      }
+      <div class="card-body">
+        <h5 class="card-title">
+          { patient.Name }
+        </h5>
+        <a href={ templ2.SafeURL("/patients/" + patient.ID.String() + "/reports") } class="btn btn-primary">Open</a>
+      </div>
+    </div>
+}
+
+templ PatientsList(patients []domain.PatientRepoModel) {
+    <div class="container">
+    <div class="row">
+    <h3 class="mb-3">Patients</h3>
+    <div class="d-grid gap-2 d-md-flex mb-5">
+        <button class="btn btn-primary" type="button"
+        data-bs-toggle="modal" data-bs-target="#createPatientModal">Add New</button>
+    </div>
+    </div>
+      for _, patient := range patients {
+        <div class="row mb-3">
+          @PatientCard(patient)
+        </div>
+      }
+    </div>
+}
+
+templ CreatePatientModal(currentUser *domain.UserRepoModel) {
+    <div class="modal fade" id="createPatientModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">New Patient</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+            <form id="createPatientForm" class="row g-3 needs-validation" action="/my-patients" method="post">
+            <div class="modal-body">
+              <div class="col-12">
+                <label for="inputPatientName" class="form-label">Name</label>
+                <input type="text" class="form-control" name="name" id="inputPatientName" required/>
+              </div>
+              <div class="col-12">
+                <label for="inputPatientIdentifier" class="form-label">Identifier</label>
+                <input type="text" class="form-control" name="identifier" id="inputPatientIdentifier"/>
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+           </form>
+        </div>
+      </div>
+    </div>
+}
+
+templ InnerHome(currentUser *domain.UserRepoModel, patients []domain.PatientRepoModel) {
+    if currentUser != nil && currentUser.IsDoctor {
+        @CreatePatientModal(currentUser)
+        if patients != nil {
+            @PatientsList(patients)
+        }
+    } else if currentUser != nil && !currentUser.IsDoctor {
+        <h2> Placeholder TODO </h2>
+        /* TODO */
+    } else {
+
+    }
+}
+
+
+templ Home(patients []domain.PatientRepoModel) {
+    <div class="container">
+        @InnerHome(GetCurrentUser(ctx), patients)
+    </div>
+}
