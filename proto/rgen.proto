@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "github.com/radiologist-ai/web-app/internal/proto";
+
+package rgen;
+
+message Request {
+    string patient_id = 1;
+    string link_to_xray = 2;
+}
+
+message Response {
+    string patient_id = 1;
+    string report = 2;
+}
+
+service RGen {
+    rpc GenerateReport (Request) returns (Response);
+}

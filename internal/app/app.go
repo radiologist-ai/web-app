@@ -16,7 +16,9 @@ import (
 	"github.com/radiologist-ai/web-app/internal/app/users/usersservice"
 	"github.com/radiologist-ai/web-app/internal/config"
 	"github.com/radiologist-ai/web-app/pkg/ptr"
+	"github.com/radiologist-ai/web-app/pkg/rgen"
 	"github.com/rs/zerolog"
+	"google.golang.org/grpc"
 	"net/http"
 	"os"
 	"sync"
@@ -38,6 +40,11 @@ func Run(backgroundCtx context.Context, wg *sync.WaitGroup) error {
 		return err
 	}
 
+	grpcConn, err := grpc.DialContext(backgroundCtx, cfg.GRPC.Addr())
+	if err != nil {
+		return err
+	}
+
 	// repository
 	usersRepo, err := usersrepo.New(logger, db)
 	if err != nil {
@@ -49,6 +56,11 @@ func Run(backgroundCtx context.Context, wg *sync.WaitGroup) error {
 	}
 
 	// service
+	rgenService, err := rgen.NewClient(grpcConn)
+	if err != nil {
+		return err
+	}
+
 	usersService, err := usersservice.New(logger, usersRepo)
 	if err != nil {
 		return err
@@ -59,7 +71,7 @@ func Run(backgroundCtx context.Context, wg *sync.WaitGroup) error {
 	}
 
 	// handlers
-	handle, err := handlers.NewHandlers(logger, usersService, patientService, cfg.Server.Secret)
+	handle, err := handlers.NewHandlers(logger, usersService, patientService, rgenService, cfg.Server.Secret)
 	if err != nil {
 		return err
 	}

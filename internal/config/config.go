@@ -1,8 +1,11 @@
 package config
 
+import "strconv"
+
 type Config struct {
 	Server   Server
 	Database Database
+	GRPC     GRPC
 }
 
 type (
@@ -18,7 +21,15 @@ type (
 		Password string `yaml:"db_password"`
 		Database string `yaml:"db_database"`
 	}
+	GRPC struct {
+		host string
+		port int
+	}
 )
+
+func (g *GRPC) Addr() string {
+	return g.host + ":" + strconv.Itoa(g.port)
+}
 
 func GetConfig() Config {
 	return Config{
@@ -33,6 +44,10 @@ func GetConfig() Config {
 			Username: "postgres",
 			Password: "password",
 			Database: "aidb",
+		},
+		GRPC: GRPC{
+			host: "0.0.0.0",
+			port: 8080,
 		},
 	}
 }
