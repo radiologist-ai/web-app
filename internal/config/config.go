@@ -6,24 +6,31 @@ type Config struct {
 	Server   Server
 	Database Database
 	GRPC     GRPC
+	Minio    Minio
 }
 
 type (
 	Server struct {
-		ListenAddr string `yaml:"listen_addr"`
-		Port       int    `yaml:"port"`
-		Secret     string `yaml:"secret"`
+		ListenAddr string `env:"listen_addr"`
+		Port       int    `env:"port"`
+		Secret     string `env:"secret"`
 	}
 	Database struct {
-		Host     string `yaml:"db_host"`
-		Port     int    `yaml:"db_port"`
-		Username string `yaml:"db_username"`
-		Password string `yaml:"db_password"`
-		Database string `yaml:"db_database"`
+		Host     string `env:"db_host"`
+		Port     int    `env:"db_port"`
+		Username string `env:"db_username"`
+		Password string `env:"db_password"`
+		Database string `env:"db_database"`
 	}
 	GRPC struct {
-		host string
-		port int
+		host string `env:"grpc_host"`
+		port int    `env:"grpc_port"`
+	}
+	Minio struct {
+		ServerURL  string `env:"minio_url"`
+		AccessKey  string `env:"minio_access"`
+		SecretKey  string `env:"minio_secret"`
+		BucketName string `env:"minio_bucket"`
 	}
 )
 
@@ -48,6 +55,12 @@ func GetConfig() Config {
 		GRPC: GRPC{
 			host: "0.0.0.0",
 			port: 8080,
+		},
+		Minio: Minio{
+			ServerURL:  "minio:9000",
+			AccessKey:  "radiologist",
+			SecretKey:  "password",
+			BucketName: "public",
 		},
 	}
 }

@@ -34,3 +34,21 @@ func (c *Client) GenerateReport(ctx context.Context, link2photo string) (string,
 	}
 	return res.Report, nil
 }
+
+func (c *Client) GenerateReportAsync(ctx context.Context, link2photo string, ch chan string, errCh chan error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	req := &proto.Request{
+		PatientId:  "fake-id",
+		LinkToXray: link2photo,
+	}
+	res, err := c.cli.GenerateReport(ctx, req)
+	if err != nil {
+		errCh <- err
+		close(ch)
+		return
+	}
+	ch <- res.Report
+	close(errCh)
+	return
+}

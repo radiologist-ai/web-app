@@ -74,12 +74,12 @@ func (h *Handlers) GetPatientHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	patientID := r.PathValue("patientID")
 	if patientID == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Redirect(w, r, "/not_found", http.StatusTemporaryRedirect)
 		return
 	}
 	patientUUID, err := uuid.Parse(patientID)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Redirect(w, r, "/not_found", http.StatusTemporaryRedirect)
 		return
 	}
 

@@ -10,11 +10,11 @@ type Handlers struct {
 	logger   *zerolog.Logger
 	users    domain.UsersService
 	patients domain.PatientService
-	rgen     domain.RGen
+	rgen     domain.ReportService
 	secret   []byte
 }
 
-func NewHandlers(logger *zerolog.Logger, users domain.UsersService, patients domain.PatientService, rgen domain.RGen, secret string) (*Handlers, error) {
+func NewHandlers(logger *zerolog.Logger, users domain.UsersService, patients domain.PatientService, rgen domain.ReportService, secret string) (*Handlers, error) {
 	if logger == nil {
 		return nil, errors.New("logger is required")
 	}
