@@ -84,6 +84,6 @@ func (h *Handlers) PostNewReportHandler(w http.ResponseWriter, r *http.Request) 
 	}
 	redirPath := fmt.Sprintf("/patients/%s/reports/%d", patient.ID.String(), report.ID)
 	w.Header().Add("HX-Redirect", redirPath)
-	http.Redirect(w, r, redirPath, http.StatusFound)
+	w.WriteHeader(http.StatusOK)
 	return
 }
