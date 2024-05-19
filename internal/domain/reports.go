@@ -13,10 +13,10 @@ type (
 		GenerateReportAsync(ctx context.Context, link2photo string, ch chan string, errCh chan error)
 	}
 	ReportService interface {
-		GenerateReport(ctx context.Context, patientID uuid.UUID, photo io.ReadCloser, size int64) (ReportModel, error)
+		GenerateReport(ctx context.Context, patientID uuid.UUID, photo io.Reader, ext string) (ReportModel, error)
 	}
 	ReportRepository interface {
-		CreateReport(ctx context.Context, patientID int, imagePath, reportText string, approved bool) (createdModel ReportModel, err error)
+		CreateReport(ctx context.Context, patientID uuid.UUID, imagePath, reportText string, approved bool) (createdModel ReportModel, err error)
 		PatchReport(ctx context.Context, id int, opts ...PatchOpt) error
 	}
 
@@ -27,7 +27,7 @@ type (
 	}
 	ReportModel struct {
 		ID         int       `db:"id"`
-		PatientID  int       `db:"patient_id"`
+		PatientID  uuid.UUID `db:"patient_id"`
 		ImagePath  string    `db:"image_path"`
 		ReportText string    `db:"report_text"`
 		Approved   bool      `db:"approved"`
@@ -40,4 +40,9 @@ type (
 	}
 
 	PatchOpt func(*PatchConf)
+)
+
+const (
+	XrayWidth  = 256
+	XrayHeight = 256
 )

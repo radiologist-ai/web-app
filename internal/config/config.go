@@ -57,7 +57,7 @@ func GetConfig() Config {
 			port: 8080,
 		},
 		Minio: Minio{
-			ServerURL:  "minio:9000",
+			ServerURL:  "localhost:9000",
 			AccessKey:  "radiologist",
 			SecretKey:  "password",
 			BucketName: "public",

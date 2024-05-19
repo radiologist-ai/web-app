@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/radiologist-ai/web-app/internal/domain"
 	"github.com/radiologist-ai/web-app/internal/domain/customerrors"
@@ -53,11 +54,12 @@ func (r *ReportRepo) PatchReport(ctx context.Context, id int, opts ...domain.Pat
 	return nil
 }
 
-func (r *ReportRepo) CreateReport(ctx context.Context, patientID int, imagePath, reportText string, approved bool) (createdModel domain.ReportModel, err error) {
-	q := `INSERT INTO reports (patient_id, image_path, report_text, Approved) VALUES ($1, $2, $3, $4)`
+func (r *ReportRepo) CreateReport(ctx context.Context, patientID uuid.UUID, imagePath, reportText string, approved bool) (createdModel domain.ReportModel, err error) {
+	q := `INSERT INTO reports (patient_id, image_path, report_text, Approved) VALUES ($1, $2, $3, $4)
+		  RETURNING id, patient_id, image_path, report_text, approved, created_at, updated_at`
 	err = r.db.QueryRowxContext(ctx, q, patientID, imagePath, reportText, approved).StructScan(&createdModel)
 	if err != nil {
-		r.logger.Error().Err(err).Int("patientID", patientID).Str("imagePath", imagePath).Msg("QueryRowxContext")
+		r.logger.Error().Err(err).Stringer("patientID", patientID).Str("imagePath", imagePath).Msg("QueryRowxContext")
 		return createdModel, err
 	}
 	return createdModel, nil

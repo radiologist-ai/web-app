@@ -37,6 +37,13 @@ type Adapter struct {
 	client *minio.Client
 }
 
+func (a *Adapter) GetPublicLink(objName string) string {
+	return fmt.Sprintf("%s://%s/%s/%s",
+		a.client.EndpointURL().Scheme,
+		a.client.EndpointURL().Host,
+		a.config.BucketName, objName)
+}
+
 // Save saves file in the MinIO and returns created object's name.
 func (a *Adapter) Save(ctx context.Context, objName, contentType string, data io.Reader, size int64) (string, error) {
 	opts := minio.PutObjectOptions{

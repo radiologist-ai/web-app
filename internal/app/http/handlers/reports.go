@@ -7,6 +7,7 @@ import (
 	"github.com/radiologist-ai/web-app/internal/domain/customerrors"
 	"github.com/radiologist-ai/web-app/internal/views"
 	"net/http"
+	"path/filepath"
 )
 
 func (h *Handlers) NewReportHandler(w http.ResponseWriter, r *http.Request) {
@@ -73,14 +74,16 @@ func (h *Handlers) PostNewReportHandler(w http.ResponseWriter, r *http.Request) 
 		http.Redirect(w, r, "/internal_server_error", http.StatusFound)
 		return
 	}
+	defer file.Close()
 
-	report, err := h.rgen.GenerateReport(r.Context(), patient.ID, file, fileHeader.Size)
+	report, err := h.rgen.GenerateReport(r.Context(), patient.ID, file, filepath.Ext(fileHeader.Filename))
 	if err != nil {
 		h.logger.Error().Err(err).Msg("rgen.GenerateReport()")
 		http.Redirect(w, r, "/internal_server_error", http.StatusFound)
 		return
 	}
-
-	http.Redirect(w, r, fmt.Sprintf("/patients/%s/reports/%d", patient.ID.String(), report.ID), http.StatusFound)
+	redirPath := fmt.Sprintf("/patients/%s/reports/%d", patient.ID.String(), report.ID)
+	w.Header().Add("HX-Redirect", redirPath)
+	http.Redirect(w, r, redirPath, http.StatusFound)
 	return
 }
