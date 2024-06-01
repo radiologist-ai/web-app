@@ -23,6 +23,17 @@ type (
 	}
 )
 
+func (s *ReportService) GetReportsByPatient(ctx context.Context, patientID uuid.UUID) ([]domain.ReportModel, error) {
+	reports, err := s.repo.GetReportsByPatient(ctx, patientID)
+	if err != nil {
+		return nil, err
+	}
+	for i := range reports {
+		reports[i].ImagePath = s.s3Client.GetPublicLink(reports[i].ImagePath)
+	}
+	return reports, nil
+}
+
 func (s *ReportService) UpdateReport(ctx context.Context, id int, opts ...domain.PatchOpt) error {
 	if len(opts) == 0 {
 		return errors.New("opts is required")

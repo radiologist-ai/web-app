@@ -91,7 +91,18 @@ func (h *Handlers) GetPatientHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/internal_server_error", http.StatusFound)
 		return
 	}
-	if err := views.Layout(views.PatientInfo(patient), patient.Name).Render(r.Context(), w); err != nil {
+	if patient.CreatorID != currentUser.ID {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	reports, err := h.rgen.GetReportsByPatient(r.Context(), patient.ID)
+	if err != nil {
+		http.Redirect(w, r, "/internal_server_error", http.StatusFound)
+		return
+	}
+
+	if err := views.Layout(views.PatientInfo(patient, reports), patient.Name).Render(r.Context(), w); err != nil {
 		http.Redirect(w, r, "/internal_server_error", http.StatusFound)
 		return
 	}

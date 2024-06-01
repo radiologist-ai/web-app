@@ -28,6 +28,16 @@ func NewReportRepo(db *sqlx.DB, logger *zerolog.Logger) (*ReportRepo, error) {
 	return &ReportRepo{db, logger}, nil
 }
 
+func (r *ReportRepo) GetReportsByPatient(ctx context.Context, patientID uuid.UUID) ([]domain.ReportModel, error) {
+	q := `SELECT id, patient_id, image_path, report_text, approved, created_at, updated_at FROM reports WHERE patient_id = $1 ORDER BY updated_at DESC`
+	reports := make([]domain.ReportModel, 0)
+	err := r.db.SelectContext(ctx, &reports, q, patientID)
+	if err != nil {
+		return nil, fmt.Errorf("%w%w", customerrors.InternalErrorSQL, err)
+	}
+	return reports, nil
+}
+
 func (r *ReportRepo) PatchReport(ctx context.Context, id int, opts ...domain.PatchOpt) error {
 	if len(opts) == 0 {
 		return errors.New("opts is required")

@@ -2,6 +2,47 @@ package views
 
 import "github.com/radiologist-ai/web-app/internal/domain"
 import templ2 "github.com/a-h/templ"
+import "strconv"
+
+templ PatienReport(patient domain.PatientRepoModel, report domain.ReportModel) {
+    <div class="card mb-3" style="max-width: 540px;">
+      <div class="row g-0">
+        <div class="col-md-4">
+          <img src={ report.ImagePath } class="img-fluid rounded-start" alt="..."/>
+        </div>
+        <div class="col-md-8">
+          <div class="card-body">
+            <h5 class="card-title">Report</h5>
+            <p class="card-text">
+            if report.Approved {
+                <span class="badge bg-success">Approved</span>
+            } else {
+                <span class="badge bg-warning text-dark">Pending</span>
+            }
+            </p>
+            <p class="card-text">{ report.ReportText }</p>
+            <p class="card-text"><small class="text-muted">Created At: { report.CreatedAt.Format("2006-01-02 15:04") }</small></p>
+            <p class="card-text"><small class="text-muted">Updated At: { report.UpdatedAt.Format("2006-01-02 15:04") }</small></p>
+            <a href={ templ2.SafeURL("/patients/" + patient.ID.String() + "/reports/" + strconv.Itoa(report.ID)) } class="btn btn-outline-primary">Open in redactor</a>
+          </div>
+        </div>
+      </div>
+    </div>
+}
+
+templ PatientReports(patient domain.PatientRepoModel, reports []domain.ReportModel) {
+    <div class="container-fluid align-content-center ml-5">
+    <h2 class="h2">Reports</h2>
+    <ul class="list-group">
+        for _, report := range reports {
+            <li class="list-group mb-3">
+                @PatienReport(patient, report)
+            </li>
+        }
+    </ul>
+    </div>
+}
+
 
 templ PatientInfoProfile(patient domain.PatientRepoModel) {
     <div class="container m-5">
@@ -34,10 +75,11 @@ templ ButtonCreateReport(patient domain.PatientRepoModel) {
     </div>
 }
 
-templ PatientInfo(patient domain.PatientRepoModel) {
+templ PatientInfo(patient domain.PatientRepoModel, reports []domain.ReportModel) {
     @PatientInfoProfile(patient)
     <hr/>
     @ButtonCreateReport(patient)
     <hr/>
+    @PatientReports(patient, reports)
 }
 

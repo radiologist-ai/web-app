@@ -13,11 +13,13 @@ type (
 		GenerateReportAsync(ctx context.Context, link2photo string, ch chan string, errCh chan error)
 	}
 	ReportService interface {
+		GetReportsByPatient(ctx context.Context, patientID uuid.UUID) ([]ReportModel, error)
 		UpdateReport(ctx context.Context, id int, opts ...PatchOpt) error
 		GetOne(ctx context.Context, id int) (ReportModel, error)
 		GenerateReport(ctx context.Context, patientID uuid.UUID, photo io.Reader, ext string) (ReportModel, error)
 	}
 	ReportRepository interface {
+		GetReportsByPatient(ctx context.Context, patientID uuid.UUID) ([]ReportModel, error)
 		CreateReport(ctx context.Context, patientID uuid.UUID, imagePath, reportText string, approved bool) (createdModel ReportModel, err error)
 		PatchReport(ctx context.Context, id int, opts ...PatchOpt) error
 		SelectReport(ctx context.Context, id int) (ReportModel, error)
