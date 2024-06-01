@@ -2,6 +2,7 @@ package reportrepo
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
@@ -39,11 +40,11 @@ func (r *ReportRepo) PatchReport(ctx context.Context, id int, opts ...domain.Pat
 	q := `UPDATE reports SET`
 	qq := make([]string, 0)
 	if conf.ReportText != nil {
-		qq = append(qq, ` ReportText = :ReportText`)
+		qq = append(qq, ` report_text = :report_text`)
 		form.ReportText = *conf.ReportText
 	}
 	if conf.Approved != nil {
-		qq = append(qq, ` Approved = :Approved`)
+		qq = append(qq, ` approved = :approved`)
 		form.Approved = *conf.Approved
 	}
 	q += strings.Join(qq, `,`) + ` WHERE id = :id`
@@ -63,4 +64,17 @@ func (r *ReportRepo) CreateReport(ctx context.Context, patientID uuid.UUID, imag
 		return createdModel, err
 	}
 	return createdModel, nil
+}
+
+func (r *ReportRepo) SelectReport(ctx context.Context, id int) (domain.ReportModel, error) {
+	var report domain.ReportModel
+	q := `SELECT id, patient_id, image_path, report_text, approved, created_at, updated_at FROM reports WHERE id = $1`
+	err := r.db.GetContext(ctx, &report, q, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return report, fmt.Errorf("%w%w", customerrors.NotFoundError, err)
+		}
+		return report, fmt.Errorf("%w%w", customerrors.InternalErrorSQL, err)
+	}
+	return report, nil
 }

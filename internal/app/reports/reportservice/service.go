@@ -23,6 +23,26 @@ type (
 	}
 )
 
+func (s *ReportService) UpdateReport(ctx context.Context, id int, opts ...domain.PatchOpt) error {
+	if len(opts) == 0 {
+		return errors.New("opts is required")
+	}
+	err := s.repo.PatchReport(ctx, id, opts...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ReportService) GetOne(ctx context.Context, id int) (domain.ReportModel, error) {
+	report, err := s.repo.SelectReport(ctx, id)
+	if err != nil {
+		return domain.ReportModel{}, err
+	}
+	report.ImagePath = s.s3Client.GetPublicLink(report.ImagePath)
+	return report, nil
+}
+
 func (s *ReportService) GenerateReport(ctx context.Context, patientID uuid.UUID, photo io.Reader, ext string) (domain.ReportModel, error) {
 	var (
 		resCh = make(chan string)

@@ -13,11 +13,14 @@ type (
 		GenerateReportAsync(ctx context.Context, link2photo string, ch chan string, errCh chan error)
 	}
 	ReportService interface {
+		UpdateReport(ctx context.Context, id int, opts ...PatchOpt) error
+		GetOne(ctx context.Context, id int) (ReportModel, error)
 		GenerateReport(ctx context.Context, patientID uuid.UUID, photo io.Reader, ext string) (ReportModel, error)
 	}
 	ReportRepository interface {
 		CreateReport(ctx context.Context, patientID uuid.UUID, imagePath, reportText string, approved bool) (createdModel ReportModel, err error)
 		PatchReport(ctx context.Context, id int, opts ...PatchOpt) error
+		SelectReport(ctx context.Context, id int) (ReportModel, error)
 	}
 
 	ReportPatchForm struct {
@@ -46,3 +49,15 @@ const (
 	XrayWidth  = 256
 	XrayHeight = 256
 )
+
+func WithReportText(s string) PatchOpt {
+	return func(conf *PatchConf) {
+		conf.ReportText = &s
+	}
+}
+
+func WithReportApproved(b bool) PatchOpt {
+	return func(conf *PatchConf) {
+		conf.Approved = &b
+	}
+}
