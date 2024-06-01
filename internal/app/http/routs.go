@@ -75,6 +75,29 @@ func NewRouter(handlers *handlers.Handlers) (*http.ServeMux, error) {
 				handlers.AuthRequired(
 					handlers.GetPatientHandler))))
 
+	mux.HandleFunc("GET /patients/{patientID}/reports/new",
+		handlers.WithHTMLResponse(
+			handlers.WithCurrentUser(
+				handlers.AuthRequired(
+					handlers.NewReportHandler))))
+
+	mux.HandleFunc("POST /patients/{patientID}/reports/new",
+		handlers.WithHTMLResponse(
+			handlers.WithCurrentUser(
+				handlers.AuthRequired(
+					handlers.PostNewReportHandler))))
+
+	mux.HandleFunc("GET /patients/{patientID}/reports/{reportID}",
+		handlers.WithHTMLResponse(
+			handlers.WithCurrentUser(
+				handlers.AuthRequired(
+					handlers.HandleEditReportPage))))
+	mux.HandleFunc("POST /patients/{patientID}/reports/{reportID}/update",
+		handlers.WithHTMLResponse(
+			handlers.WithCurrentUser(
+				handlers.AuthRequired(
+					handlers.PostEditReportHandler))))
+
 	mux.HandleFunc("GET /link-account",
 		handlers.WithHTMLResponse(
 			handlers.WithCurrentUser(

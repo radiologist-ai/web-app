@@ -12,11 +12,17 @@ import (
 	"github.com/radiologist-ai/web-app/internal/app/http/handlers"
 	"github.com/radiologist-ai/web-app/internal/app/patient/patientrepo"
 	"github.com/radiologist-ai/web-app/internal/app/patient/patientservice"
+	"github.com/radiologist-ai/web-app/internal/app/reports/reportrepo"
+	"github.com/radiologist-ai/web-app/internal/app/reports/reportservice"
 	"github.com/radiologist-ai/web-app/internal/app/users/usersrepo"
 	"github.com/radiologist-ai/web-app/internal/app/users/usersservice"
 	"github.com/radiologist-ai/web-app/internal/config"
+	"github.com/radiologist-ai/web-app/pkg/minio_adapter"
 	"github.com/radiologist-ai/web-app/pkg/ptr"
+	"github.com/radiologist-ai/web-app/pkg/rgen"
 	"github.com/rs/zerolog"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 	"os"
 	"sync"
@@ -38,12 +44,36 @@ func Run(backgroundCtx context.Context, wg *sync.WaitGroup) error {
 		return err
 	}
 
+	grpcConn, err := grpc.DialContext(backgroundCtx, cfg.GRPC.Addr(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return err
+	}
+
+	//third-party shenanigans
+	rgenCli, err := rgen.NewClient(grpcConn)
+	if err != nil {
+		return err
+	}
+	mc, err := minio_adapter.New(logger, &minio_adapter.MinioConfig{
+		ServerURL:  cfg.Minio.ServerURL,
+		AccessKey:  cfg.Minio.AccessKey,
+		SecretKey:  cfg.Minio.SecretKey,
+		BucketName: cfg.Minio.BucketName,
+	}, false)
+	if err != nil {
+		return err
+	}
+
 	// repository
 	usersRepo, err := usersrepo.New(logger, db)
 	if err != nil {
 		return err
 	}
 	patientRepo, err := patientrepo.New(db, logger)
+	if err != nil {
+		return err
+	}
+	reportRepo, err := reportrepo.NewReportRepo(db, logger)
 	if err != nil {
 		return err
 	}
@@ -57,9 +87,10 @@ func Run(backgroundCtx context.Context, wg *sync.WaitGroup) error {
 	if err != nil {
 		return err
 	}
+	reportService, err := reportservice.New(logger, reportRepo, mc, rgenCli)
 
 	// handlers
-	handle, err := handlers.NewHandlers(logger, usersService, patientService, cfg.Server.Secret)
+	handle, err := handlers.NewHandlers(logger, usersService, patientService, reportService, cfg.Server.Secret)
 	if err != nil {
 		return err
 	}

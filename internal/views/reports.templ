@@ -1,0 +1,87 @@
+package views
+
+import "github.com/radiologist-ai/web-app/internal/domain"
+import templ2 "github.com/a-h/templ"
+import "strconv"
+import "time"
+
+templ NewReportPage(patient domain.PatientRepoModel) {
+    <div class="container" id="newReportPage">
+        <form id="reportForm" class="needs-validation"
+        hx-post={ "/patients/" + patient.ID.String() + "/reports/new" }
+        hx-trigger="submit"
+        hx-indicator="#spinner"
+        action={ templ2.SafeURL("/patients/" + patient.ID.String() + "/reports/new") }
+        method="post"
+        enctype="multipart/form-data"
+        >
+            <label for="formFileLg" class="form-label">X-ray image</label>
+            <input class="form-control form-control-lg mb5" id="formFileLg" name="xray" type="file" accept="image/png, image/jpeg" required/>
+
+            <div class="col-auto">
+                <button id="submGenRep" type="submit" class="btn btn-primary mb-3">Generate Report</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="d-flex justify-content-center htmx-indicator" id="spinner">
+      <h2>Please don't leave the page, your report will be generated soon. </h2>
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+
+      </div>
+    </div>
+
+    <script>
+    document.body.addEventListener('htmx:beforeSend', function(evt) {
+        document.getElementById("submGenRep").disabled = true;
+    });
+    </script>
+}
+
+templ ReportPage(patient domain.PatientRepoModel, report domain.ReportModel) {
+    <div class="container" id="reportPage">
+        <h1>Report</h1>
+        <div class="row">
+            <div class="col">
+                <h5>Report ID: { strconv.Itoa(report.ID) }</h5>
+                <h5>Report Approved:
+                if report.Approved {
+                    <span>True</span>
+                } else {
+                    <span>False</span>
+                }</h5>
+                <h5>Report Text: {report.ReportText}</h5>
+                <h5>Report CreatedAt: {report.CreatedAt.Format(time.RFC1123)}</h5>
+                <h5>Report UpdatedAt: {report.UpdatedAt.Format(time.RFC1123)}</h5>
+            </div>
+            <div class="col">
+                <img src={ report.ImagePath } alt="X-ray image" class="img-thumbnail"/>
+            </div>
+        </div>
+        <hr/>
+        <form id="putReportForm" class="needs-validation"
+        action={ templ2.SafeURL("/patients/" + patient.ID.String() + "/reports/" + strconv.Itoa(report.ID) + "/update") }
+        method="post">
+            <label for="reportEditTextArea" class="form-label">You can </label>
+            <div class="input-group">
+              <textarea name="report_text" id="reportEditTextArea" class="form-control" aria-label="With textarea">{report.ReportText}</textarea>
+            </div>
+            <div class="form-check">
+            if report.Approved {
+              <input class="form-check-input" type="checkbox"
+               id="flexCheckDefault" name="approved" checked/>
+            } else {
+                <input class="form-check-input" type="checkbox"
+                               id="flexCheckDefault" name="approved"/>
+            }
+              <label class="form-check-label" for="flexCheckDefault">
+                Approve report
+              </label>
+            </div>
+            <div class="col-auto">
+                <button id="submPutRep" type="submit" class="btn btn-primary mb-3">Update Report</button>
+            </div>
+        </form>
+    </div>
+}

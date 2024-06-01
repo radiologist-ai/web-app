@@ -1,8 +1,9 @@
 package views
 
 import "github.com/radiologist-ai/web-app/internal/domain"
+import templ2 "github.com/a-h/templ"
 
-templ PatientInfo(patient domain.PatientRepoModel) {
+templ PatientInfoProfile(patient domain.PatientRepoModel) {
     <div class="container m-5">
         <h1>Patient Profile</h1>
         <div class="row">
@@ -26,3 +27,17 @@ templ PatientInfo(patient domain.PatientRepoModel) {
         </div>
     </div>
 }
+
+templ ButtonCreateReport(patient domain.PatientRepoModel) {
+    <div class="container align-content-center">
+        <a href={ templ2.SafeURL("/patients/" + patient.ID.String() + "/reports/new") } class="btn btn-primary btn-lg" tabindex="-1" role="button">Create Report</a>
+    </div>
+}
+
+templ PatientInfo(patient domain.PatientRepoModel) {
+    @PatientInfoProfile(patient)
+    <hr/>
+    @ButtonCreateReport(patient)
+    <hr/>
+}
+
