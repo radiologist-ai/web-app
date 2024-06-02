@@ -62,6 +62,7 @@ func (h *Handlers) PostLinkAccountHandler(w http.ResponseWriter, r *http.Request
 	success = true
 
 renderHTML:
+	w.Header().Set("HX-Trigger", "refresh-accs")
 	if err := views.LinkAccountForm(comment, success).Render(r.Context(), w); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

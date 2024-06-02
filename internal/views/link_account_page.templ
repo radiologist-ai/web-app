@@ -34,7 +34,7 @@ templ LinkAccountForm(comment string, success bool) {
 
 templ ListOfAccounts(accounts []domain.PatientAccountInfo) {
     <div id="listOfMyAccounts"
-    hx-trigger="load, submit from:form"
+    hx-trigger="load, refresh-accs from:form"
     hx-get="/my-accounts"
     hx-target="#innerAccountsList"
     hx-swap="outerHTML"
