@@ -27,7 +27,7 @@ func PatienReport(patient domain.PatientRepoModel, report domain.ReportModel) te
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card mb-3\" style=\"max-width: 540px;\"><div class=\"row g-0\"><div class=\"col-md-4\"><img src=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"card mb-3\" style=\"max-width: 1800px;\"><div class=\"row g-0\"><div class=\"col-md-2\"><img src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -40,7 +40,7 @@ func PatienReport(patient domain.PatientRepoModel, report domain.ReportModel) te
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"img-fluid rounded-start\" alt=\"...\"></div><div class=\"col-md-8\"><div class=\"card-body\"><h5 class=\"card-title\">Report</h5><p class=\"card-text\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"img-fluid rounded-start\" alt=\"...\"></div><div class=\"col-md-10\"><div class=\"card-body\"><h5 class=\"card-title\">Report</h5><p class=\"card-text\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

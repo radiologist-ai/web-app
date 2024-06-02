@@ -5,12 +5,12 @@ import templ2 "github.com/a-h/templ"
 import "strconv"
 
 templ PatienReport(patient domain.PatientRepoModel, report domain.ReportModel) {
-    <div class="card mb-3" style="max-width: 540px;">
+    <div class="card mb-3" style="max-width: 1800px;">
       <div class="row g-0">
-        <div class="col-md-4">
+        <div class="col-md-2">
           <img src={ report.ImagePath } class="img-fluid rounded-start" alt="..."/>
         </div>
-        <div class="col-md-8">
+        <div class="col-md-10">
           <div class="card-body">
             <h5 class="card-title">Report</h5>
             <p class="card-text">

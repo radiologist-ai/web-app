@@ -98,6 +98,17 @@ func NewRouter(handlers *handlers.Handlers) (*http.ServeMux, error) {
 				handlers.AuthRequired(
 					handlers.PostEditReportHandler))))
 
+	mux.HandleFunc("POST /my-reports",
+		handlers.WithHTMLResponse(
+			handlers.WithCurrentUser(
+				handlers.AuthRequired(
+					handlers.GenerateReportByPatientHandler))))
+	mux.HandleFunc("GET /ai-reports",
+		handlers.WithHTMLResponse(
+			handlers.WithCurrentUser(
+				handlers.AuthRequired(
+					handlers.NewAiReportForPatient))))
+
 	mux.HandleFunc("GET /link-account",
 		handlers.WithHTMLResponse(
 			handlers.WithCurrentUser(

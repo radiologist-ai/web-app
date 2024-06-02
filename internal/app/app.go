@@ -83,7 +83,7 @@ func Run(backgroundCtx context.Context, wg *sync.WaitGroup) error {
 	if err != nil {
 		return err
 	}
-	patientService, err := patientservice.New(logger, patientRepo)
+	patientService, err := patientservice.New(logger, patientRepo, mc)
 	if err != nil {
 		return err
 	}

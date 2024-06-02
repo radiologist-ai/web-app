@@ -17,6 +17,21 @@ type PatientRepo struct {
 	logger *zerolog.Logger
 }
 
+func (pr *PatientRepo) GetSelfPatientIDOfUser(ctx context.Context, userID int) (uuid.UUID, error) {
+	var res uuid.UUID
+	query := `SELECT id FROM patients WHERE user_id = $1 AND creator_id = $1`
+	err := pr.db.QueryRowxContext(ctx, query, userID).Scan(&res)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return uuid.UUID{}, fmt.Errorf("%w%w", customerrors.NotFoundError, err)
+		}
+		pr.logger.Error().Err(err).Int("userID", userID).Msg("error selecting patient")
+		return uuid.UUID{}, fmt.Errorf("%w%w", customerrors.InternalErrorSQL, err)
+	}
+	return res, nil
+
+}
+
 func (pr *PatientRepo) LinkPatient(ctx context.Context, user domain.UserRepoModel, patientID uuid.UUID) error {
 	query := `UPDATE patients SET user_id = $1 WHERE id = $2 AND user_id IS NULL`
 	res, err := pr.db.ExecContext(ctx, query, user.ID, patientID)

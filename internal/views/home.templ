@@ -65,23 +65,69 @@ templ CreatePatientModal(currentUser *domain.UserRepoModel) {
     </div>
 }
 
-templ InnerHome(currentUser *domain.UserRepoModel, patients []domain.PatientRepoModel) {
+templ ReportCard(report domain.ReportForPatient) {
+    <div class="card mb-3" style="max-width: 1600px;">
+          <div class="row g-0">
+            <div class="col-md-3">
+              <img src={ report.ImagePath } class="img-fluid rounded-start" alt="..."/>
+            </div>
+            <div class="col-md-9">
+              <div class="card-body">
+                <h5 class="card-title">Report</h5>
+                <p class="card-text">
+                if report.Approved {
+                    <span class="badge bg-success">Approved</span>
+                } else {
+                    <span class="badge bg-warning text-dark">Pending</span>
+                }
+                </p>
+                <p class="card-text">{ report.Text }</p>
+                <p class="card-text"><small class="text-muted">Patient Name: { report.PatientName }</small></p>
+                <p class="card-text"><small class="text-muted">Doctor Name: { report.DoctorName }</small></p>
+                <p class="card-text"><small class="text-muted">Created At: { report.CreatedAt.Format("2006-01-02 15:04") }</small></p>
+                <p class="card-text"><small class="text-muted">Updated At: { report.UpdatedAt.Format("2006-01-02 15:04") }</small></p>
+              </div>
+            </div>
+          </div>
+    </div>
+}
+
+templ ReportsList(reports []domain.ReportForPatient) {
+    <div class="container">
+    <div class="row">
+    <h3 class="mb-3">Reports</h3>
+    </div>
+      for _, report := range reports {
+        <div class="row mb-3">
+          @ReportCard(report)
+        </div>
+      }
+    </div>
+}
+
+
+templ InnerHome(currentUser *domain.UserRepoModel, patients []domain.PatientRepoModel, reports []domain.ReportForPatient) {
     if currentUser != nil && currentUser.IsDoctor {
         @CreatePatientModal(currentUser)
         if patients != nil {
             @PatientsList(patients)
         }
     } else if currentUser != nil && !currentUser.IsDoctor {
-        <h2> Placeholder TODO </h2>
-        /* TODO */
+        if reports != nil {
+            @ReportsList(reports)
+        } else {
+            <div class="container">
+                <h3 class="mb-3">No reports found yet</h3>
+            </div>
+        }
     } else {
 
     }
 }
 
 
-templ Home(patients []domain.PatientRepoModel) {
+templ Home(patients []domain.PatientRepoModel, reports []domain.ReportForPatient) {
     <div class="container">
-        @InnerHome(GetCurrentUser(ctx), patients)
+        @InnerHome(GetCurrentUser(ctx), patients, reports)
     </div>
 }

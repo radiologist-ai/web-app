@@ -6,7 +6,9 @@ import (
 	"github.com/radiologist-ai/web-app/internal/domain"
 	"github.com/radiologist-ai/web-app/internal/domain/customerrors"
 	"github.com/radiologist-ai/web-app/internal/views"
+	"mime/multipart"
 	"net/http"
+	"path/filepath"
 )
 
 func (h *Handlers) GetMyAccountsHandler(w http.ResponseWriter, r *http.Request) {
@@ -141,7 +143,8 @@ func (h *Handlers) PostPatientHandler(w http.ResponseWriter, r *http.Request) {
 func (h *Handlers) GetHomeHandler(w http.ResponseWriter, r *http.Request) {
 	currentUser, ok := GetCurrentUser(r.Context())
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+
+		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
 	if currentUser.IsDoctor {
@@ -151,18 +154,90 @@ func (h *Handlers) GetHomeHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/internal_server_error", http.StatusFound)
 			return
 		}
-		err = views.Layout(views.Home(patients), "My Patients").Render(r.Context(), w)
+		err = views.Layout(views.Home(patients, nil), "My Patients").Render(r.Context(), w)
 		if err != nil {
 			h.logger.Error().Err(err).Msg("error rendering layout")
 			http.Redirect(w, r, "/internal_server_error", http.StatusFound)
 		}
 		return
 	} else {
-		err := views.Layout(views.Home(nil), "Home").Render(r.Context(), w)
+		reports, err := h.patients.GetApprovedReportsByUser(r.Context(), *currentUser)
+		if err != nil {
+			http.Redirect(w, r, "/internal_server_error", http.StatusFound)
+			return
+		}
+		err = views.Layout(views.Home(nil, reports), "Home").Render(r.Context(), w)
 		if err != nil {
 			h.logger.Error().Err(err).Msg("error rendering layout")
 			http.Redirect(w, r, "/internal_server_error", http.StatusFound)
 		}
+		return
+	}
+}
+
+func (h *Handlers) GenerateReportByPatientHandler(w http.ResponseWriter, r *http.Request) {
+	currentUser, ok := GetCurrentUser(r.Context())
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	patientUUID, err := h.patients.GetSelfPatientIDOfUser(r.Context(), *currentUser)
+	if err != nil {
+		http.Redirect(w, r, "/internal_server_error", http.StatusTemporaryRedirect)
+		return
+	}
+
+	file, fileHeader, err := r.FormFile("xray")
+	if err != nil || fileHeader == nil {
+		h.logger.Error().Err(err).Any("fileHeader", fileHeader).Msg("r.FormFile(\"xray\")")
+		http.Redirect(w, r, "/internal_server_error", http.StatusFound)
+		return
+	}
+	defer func(file multipart.File) {
+		err := file.Close()
+		if err != nil {
+			h.logger.Error().Err(err).Msg("file.Close()")
+		}
+	}(file)
+
+	_, err = h.rgen.GenerateReport(r.Context(), patientUUID, file, filepath.Ext(fileHeader.Filename))
+	if err != nil {
+		h.logger.Error().Err(err).Msg("rgen.GenerateReport()")
+		http.Redirect(w, r, "/internal_server_error", http.StatusFound)
+		return
+	}
+
+	reports, err := h.patients.ListAIGeneratedReportsByPatientID(r.Context(), patientUUID)
+	if err = views.ReportsList(reports).Render(r.Context(), w); err != nil {
+		w.Header().Set("HX-Redirect", "/internal_server_error")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	return
+}
+
+func (h *Handlers) NewAiReportForPatient(w http.ResponseWriter, r *http.Request) {
+	currentUser, ok := GetCurrentUser(r.Context())
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	patientUUID, err := h.patients.GetSelfPatientIDOfUser(r.Context(), *currentUser)
+	if err != nil {
+		http.Redirect(w, r, "/internal_server_error", http.StatusTemporaryRedirect)
+		return
+	}
+
+	reports, err := h.patients.ListAIGeneratedReportsByPatientID(r.Context(), patientUUID)
+	if err != nil {
+		http.Redirect(w, r, "/internal_server_error", http.StatusTemporaryRedirect)
+		return
+	}
+
+	if err = views.Layout(views.NewAIReportPage(reports), "Generate report").Render(r.Context(), w); err != nil {
+		http.Redirect(w, r, "/internal_server_error", http.StatusTemporaryRedirect)
 		return
 	}
 }

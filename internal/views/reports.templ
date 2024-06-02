@@ -63,7 +63,7 @@ templ ReportPage(patient domain.PatientRepoModel, report domain.ReportModel) {
         <form id="putReportForm" class="needs-validation"
         action={ templ2.SafeURL("/patients/" + patient.ID.String() + "/reports/" + strconv.Itoa(report.ID) + "/update") }
         method="post">
-            <label for="reportEditTextArea" class="form-label">You can </label>
+            <label for="reportEditTextArea" class="form-label">You can edit report and approve it so patient will see it.</label>
             <div class="input-group">
               <textarea name="report_text" id="reportEditTextArea" class="form-control" aria-label="With textarea">{report.ReportText}</textarea>
             </div>

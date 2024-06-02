@@ -163,7 +163,7 @@ func ReportPage(patient domain.PatientRepoModel, report domain.ReportModel) temp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" method=\"post\"><label for=\"reportEditTextArea\" class=\"form-label\">You can </label><div class=\"input-group\"><textarea name=\"report_text\" id=\"reportEditTextArea\" class=\"form-control\" aria-label=\"With textarea\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" method=\"post\"><label for=\"reportEditTextArea\" class=\"form-label\">You can edit report and approve it so patient will see it.</label><div class=\"input-group\"><textarea name=\"report_text\" id=\"reportEditTextArea\" class=\"form-control\" aria-label=\"With textarea\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
