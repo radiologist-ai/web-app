@@ -42,7 +42,7 @@ func GetConfig() Config {
 	return Config{
 		Server: Server{
 			ListenAddr: "0.0.0.0",
-			Port:       5000,
+			Port:       80,
 			Secret:     "secret",
 		},
 		Database: Database{
