@@ -7,6 +7,7 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/rs/zerolog"
 	"io"
+	"time"
 )
 
 var ErrSendingObject = fmt.Errorf("error while sending object to storage")
@@ -67,4 +68,33 @@ func (a *Adapter) Remove(ctx context.Context, objName string) error {
 		return err
 	}
 	return nil
+}
+
+func (a *Adapter) Compose(ctx context.Context, destObjName string, srcObjNames ...string) (string, error) {
+	srcOpts := make([]minio.CopySrcOptions, 0, len(srcObjNames))
+	destOpt := minio.CopyDestOptions{
+		Bucket: a.config.BucketName,
+		Object: destObjName,
+	}
+	for _, srcObjName := range srcObjNames {
+		srcOpts = append(srcOpts, minio.CopySrcOptions{
+			Bucket:               a.config.BucketName,
+			Object:               srcObjName,
+			VersionID:            "",
+			MatchETag:            "",
+			NoMatchETag:          "",
+			MatchModifiedSince:   time.Time{},
+			MatchUnmodifiedSince: time.Time{},
+			MatchRange:           false,
+			Start:                0,
+			End:                  0,
+			Encryption:           nil,
+		})
+	}
+
+	info, err := a.client.ComposeObject(ctx, destOpt, srcOpts...)
+	if err != nil {
+		return "", err
+	}
+	return info.Key, nil
 }
