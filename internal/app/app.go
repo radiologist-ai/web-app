@@ -103,7 +103,7 @@ func Run(backgroundCtx context.Context, wg *sync.WaitGroup) error {
 		Addr:    fmt.Sprintf("%s:%d", cfg.Server.ListenAddr, cfg.Server.Port),
 		Handler: router,
 	}
-
+	DoShit(backgroundCtx, mc)
 	errChan := make(chan error)
 	logger.Info().Msg(fmt.Sprintf("starting server on %s:%d", cfg.Server.ListenAddr, cfg.Server.Port))
 	go func() {
